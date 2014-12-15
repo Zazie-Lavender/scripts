@@ -12,10 +12,10 @@ on ^*:start: {
 #ldmaint end
 
 #loggerdmain on
-
 ;As a performance booster we've removed the flushini from the ontext event. This should keep mIRC from locking up
-;To ensure new text events get parsed, we're also running a timer so that the inis get flushed every 15s
+;To ensure new events get parsed, we're also running a timer so that the inis get flushed every 15s
 ;This should decrease the disk I/O load of the script significantly, and we can lower the time for more up to date logging
+
 alias initloggerd {
   window -dDe2k0 @Seen 
   var %inifile [ $network $+ .ini ]
@@ -40,12 +40,18 @@ on ^*:text:*:*: {
 }
 
 ;WE STILL FLUSH THE INIS ON LESS COMMON EVENTS! This is to make sure that things stay up to date as we're seeing things happen
+;******************************************THE PREVIOUS COMMENT IS NO LONGER TRUE*******************************************************
+;YOU MUST NOT FLUSH THE INIS ON EVENTS! This is due to a performance bottleneck that arises during extremely adverse network conditions
+;Sitting in a number of large channels and being on the wrong side of a split can bring the client screeching to a halt, especially 
+;on older computers with less resources. 
+;TL;DR YOU MUST MUST MUST MUST RELY ON THE TIMERS COMPLETELY TO FLUSH YOUR INI UNLESS YOU'RE MAKING A REQUEST FROM LOGGERD!
+
 
 on ^*:join:#: {
   var %inifile [ $network $+ .ini ]
   writeini -n %inifile [ $+($network,.,addr) ] [ $nick $address($nick,0) $address($nick,2) $address($nick,5) ]
   writeini -n %inifile [ $+($network,.,act) ] [ $+(LASTACT,:,$nick) Joined $target at $adate $asctime($ctime,hh:nn:ss) ]
-  flushini %inifile
+  ;flushini %inifile
   ;hadd -m $network $+($target,.,$nick) $adate $asctime($ctime,hh:nn:ss) $target Joined
   ;hadd -m $network $+(address,.,$nick) $address($nick,2)
 }
@@ -54,7 +60,7 @@ on ^*:part:#: {
   var %inifile [ $network $+ .ini ]
   writeini -n %inifile [ $+($network,.,addr) ] [ $nick $address($nick,0) $address($nick,2) $address($nick,5) ]
   writeini -n %inifile [ $+($network,.,act) ] [ $+(LASTACT,:,$nick) Parted $target at $adate $asctime($ctime,hh:nn:ss) with message $1- ]
-  flushini %inifile
+  ;flushini %inifile
   ;hadd -m $network $+($target,.,$nick) $adate $asctime($ctime,hh:nn:ss) $target Parted 
   ;hadd -m $network $+(address,.,$nick) $address($nick,2)
 }
@@ -63,7 +69,7 @@ on ^*:quit: {
   var %inifile [ $network $+ .ini ]
   writeini -n %inifile [ $+($network,.,addr) ] [ $nick $address($nick,0) $address($nick,2) $address($nick,5) ] 
   writeini -n %inifile [ $+($network,.,act) ] [ $+(LASTACT,:,$nick) Quit at $adate $asctime($ctime,hh:nn:ss) with message $1- ]
-  flushini %inifile
+  ;flushini %inifile
   ;hadd -m $network $+($target,.,$nick) $adate $asctime($ctime,hh:nn:ss) Quit Server $1-
   ;hadd -m $network $+(address,.,$nick) $address($nick,2)
 }
@@ -72,7 +78,7 @@ on ^*:nick: {
   var %inifile [ $network $+ .ini ]
   writeini -n %inifile [ $+($network,.,addr) ] [ $nick $address($newnick,0) $address($newnick,2) $address($newnick,5) ] 
   writeini -n %inifile [ $+($network,.,act) ] [ $+(LASTACT,:,$nick) Changed nick to $newnick $adate $asctime($ctime,hh:nn:ss) ]
-  flushini %inifile
+  ;flushini %inifile
   ;hadd -m $network $+($target,.,$nick) $adate $asctime($ctime,hh:nn:ss) Nick $newnick
   ;hadd -m $network $+(address,.,$nenick) $address($newnick,2)
 }
@@ -80,14 +86,14 @@ on ^*:nick: {
 on ^*:mode:#: {
   var %inifile [ $network $+ .ini ]
   writeini -n %inifile [ $+($network,.,modes) $chan $nick sets mode $1- at $adate $asctime($ctime,hh:nn:ss) ] 
-  flushini %inifile
+  ;flushini %inifile
 }
 
 on ^*:kick:#: {
   var %inifile [ $network $+ .ini ]
   writeini -n %inifile [ $+($network,.,act) $+(LASTACT,:,$nick) kicked $knick $1- at $adate $asctime($ctime,hh:nn:ss) ] 
   writeini -n %inifile [ $+($network,.,act) $+(LASTACT,:,$knick) got kicked by $nick $1- at $adate $asctime($ctime,hh:nn:ss) ] 
-  flushini %inifile
+  ;flushini %inifile
 }
 
 ;Flushing on Exit is required. 
