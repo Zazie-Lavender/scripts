@@ -158,11 +158,12 @@ alias video_card_ram { dem Video Card RAM: $de(video_card_ram) $+  MB }
 ;----
 alias fde { flushini de.ini }
 alias de { return $dll(deultimate.dll,$1,_) }
-alias dem { msg $active  $+ $dek $+  $+ $1- } 
+alias dem { msg $active  $+ $dek $+ $1- } 
 alias deq { return $$?="Enter message/text" }
 alias dek { if ($isid == $true) { return $readini(de.ini,options,color) } | if ($isid == $false) { writeini de.ini options color $remove($1,) | flushini de.ini } }
 
-
+;Custom Aliases
+alias np {  dem NOW PLAYING: $de(winamp,np) }
 
 ; Darkengine Script Menus
 ;---
@@ -240,7 +241,7 @@ menu channel,query {
   ..Video Card RAM:/video_card_ram
   .-
   Winamp
-  ..Current Playing:/wamp
+  ..Current Playing:/np
   .-
   Help
   ..About:/about
