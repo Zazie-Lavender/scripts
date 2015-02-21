@@ -20,8 +20,9 @@ alias initloggerd {
   window -dDe2k0 @Seen 
   var %inifile [ $network $+ .ini ]
   flushini %inifile
-  timer 0 30 /flushini %inifile
+  timer 0 60 /flushini %inifile
   ;doubled flushtime to see if performance improves, 15 seconds seems to make the client derpy
+  ;doubled again to see if it helps random lockups during type inpup.
 }
 
 on ^*:connect: { 
