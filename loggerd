@@ -17,12 +17,13 @@ on ^*:start: {
 ;This should decrease the disk I/O load of the script significantly, and we can lower the time for more up to date logging
 
 alias initloggerd {
-  window -dDe2k0 @Seen 
+  ;window -dDe2k0 @Seen 
   var %inifile [ $network $+ .ini ]
   flushini %inifile
-  timer 0 60 /flushini %inifile
+  timer 0 120 /flushini %inifile
   ;doubled flushtime to see if performance improves, 15 seconds seems to make the client derpy
   ;doubled again to see if it helps random lockups during type inpup.
+  ;Doubled a third time to see if this improves logging any
 }
 
 on ^*:connect: { 

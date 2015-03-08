@@ -1,0 +1,490 @@
+;; jii.mirc -rdv started october 2012
+;; minimal use to hard drive (every thing stored and changed in memory
+;; Mods and stubs for personal use by Zazie_Lavender
+
+;on *:notice:*:*:{
+;  if ($nick == chanserv) {
+;    if (flags list isin $1-) {
+;      hadd -mu5 current chan $4
+;      ;echo -sa $1-
+;    }
+;    if ($hget(current,chan) != $null) && ($1 isnum) {
+;      if ($3 == N) { .timer 1 $r(1,120) cs flags $hget(current,chan) modify $2 +coO | echo -st Changing flags in $hget(current,chan) $2 to +coO }
+;    }
+;    halt
+;  }
+;}
+
+on *:start:{
+  ;compile main config shit
+  .timestamp -f 01,13h:nnt14(01ss14)
+  mhashread main
+  .nick $main(nick)
+  .anick $main(altnick)
+  startup.echo
+  var %up = $gettok($uptime(system,1),1,32)
+  if (min !isin %up) || (sec !isin %up) { .timer 1 15 do.osstart }
+}
+alias do.osstart {
+  var %1a = 1
+  var %2b = $lines(startup)
+  while (%1a <= %2b) {
+    if ($read(startup,%1a) != $null) { $read(startup,%1a) }
+    inc %1a
+  }
+}
+alias startup.echo {
+  i.echo -s jii.irc (dev: rdv) - found @ irc.snoonet.org in #reddit / #snoonet (e-mail me: shane@snoonet.org)
+  i.echo -s jii.irc is to be as GUI-less (use mIRC's alt+o Options), config based, and command based. It's to be user-friendly and powerful.
+  i.echo -s jii.irc Many of the channel options can be changed/viewed by right clicking the channel and changing settings there
+  i.echo -s jii.irc Settings can be made/edited by /editcfg - After you do this, right click the channel and press rehash or type /rehash <channel> - For network settings type /rehash network or right click and press Rehash in the Status window
+}
+;Stubbed a helpchan watcher
+;on *:join:#help:{
+;if ($network == Snoonet) && ($nick != $me) && (snoonet !isin $address($nick,4)) {
+;hadd -m recj.help $nick 1
+;}
+;}
+;on *:text:*:#help:{
+;if ($hget(recj.help,$nick) != $null) {
+;echo -ta 14[8#help14]0 $nick first message14:9 $strip($1-)
+;hdel recj.help $nick 1
+;}
+;}
+alias rehash {
+  mhashread global.op
+  if ($1 == network) {
+    if ($readini($1,nick) != $null) { hadd -mu1 doecho hash 1 | mhashread $network | mhashread $network }
+    if ($readini($1,nick) == $null) { i.echo -s Cannot rehash network: $1 - Please /gen.config $1 }
+  }
+  if ($1 != $network) {
+    if ($readini($1,$network $+ . $+ $1) != $null) { hadd -mu1 doecho hash 1 | mhashread $network $+ . $+ $1 | mhashread $network $+ . $+ $1 }
+    if ($readini($1,$network $+ . $+ $1) == $null) { i.echo -s Cannot rehash network: $1 - Please /gen.config $1 }
+  }
+}
+alias hash.set {
+  if ($1 == $null) { return }
+  if ($read(main.ini,main,$1) == $null) { i.echo Error: $1 is invalid or not set in main.ini config file. /editcfg to fix it. }
+  hadd -m hash.main $1 $gettok($read(main.ini,main,$1),1,32)
+}
+alias main {
+  if ($1 != $null) { return $hget(main,$1) }
+}
+alias smode { var %a = $replace($snicks,$chr(44),$chr(32)) | os mode $1 $left($2,1) $+ $str($right($2,1),$gettok(%a,0,32)) %a }
+alias editcfg { run notepad main.ini }
+alias i.echo {
+  if ($left($1,1) == -) { echo $1 $+ ti $+ $calc($len($strip($timestamp)) + 1) $2- }
+  if ($me ison $1) { echo -ti $+ $calc($len($strip($timestamp)) + 1) $1  2╳15 $2- }
+  if ($left($1,1) != -) && ($window($1) == $null) { echo -ati $+ $calc($len($strip($timestamp)) + 1) 2╳15 $1- }
+}
+alias mhashread {
+  var %a = 1 | var %b = $lines(main.ini) | var %c = false
+  while (%a <= %b) {
+    var %line = $read(main.ini,%a)
+    if (%line == $+([,$1,])) { var %c = true }
+    if (%c == true) {
+      if ($gettok(%line,0,32) >= 1) && ($left(%line,1) == $chr(91)) && (%line != $+([,$1,])) { var %c = false }
+      if ($chr(61) isin $gettok(%line,1,32)) {
+        if ($me ison $gettok($1,2,$asc(.))) { var %d = $gettok($1,2,$asc(.)) }
+        if ($me !ison $gettok($1,2,$asc(.))) { var %d = -s }
+        hadd -m $1 $gettok(%line,1,61) $gettok(%line,2-,61)
+        if ($hget(doecho,hash) != $null) { i.echo %d 14,1[12Config14]0 $gettok(%line,1,61) 14(02 $+ $gettok(%line,2-,61) $+ 14) }
+      }
+    }
+    inc %a
+  }
+}
+
+;;version reply, name of script etc
+alias s.version {
+  var %a = 1
+  var %b = $script(0)
+  var %c = $gettok($script(1),0,$asc(\))
+  while (%a <= %b) { var %s = $gettok($gettok($script(%a),%c,$asc(\)),1,46) %s | inc %a }
+  ;return 3,1snoonet9.3com14(9org14)15 advanced options 14(9mods3:00 $replace(%s,$chr(32),3/00) $+ 14) 3..0charybdis-focus 15,1!dev: rdv14(12shane@snoonet.org14)
+  return << jii.irc v1.advanced (irc.snoonet.org custom) >> by: rdv (shane@snoonet.org)
+}
+
+alias rp.up {
+  var %a = $uptime(system,1)
+  return $replace(%a,wks,w,wk,w,days,d,day,d,hrs,h,hr,h,mins,m,min,m,secs,s,sec,s,$chr(32),.))
+}
+;;debug stuff, for parsing raw data unfiltered by mIRC yet
+alias dbgz {
+  var %a = $1-
+  tokenize 32 %a
+  if ($3 == 433) {
+    if ($5 == $main(nick)) && ($main(altnick) != $5) && ($main(altnick) != $null) { nick $main(altnick) }
+  }
+  if ($1 == $chr(45) $+ $chr(62)) {
+    if ($3 == WHO) {
+      if ($hget(justjoined,$4) != $null) { hadd -mu10 sendwho $4 1 }
+    }
+  }
+  if ($1 $3 $4 $5 == $chr(60) $+ $chr(45) PRIVMSG $me $+(:,$chr(1),VERSION,$chr(1))) {
+    i.echo -sa 14,1[2CTCP13(00 $+ $right($2,-1) $+ 13)14]15 VERSION
+    .ctcpreply $dbnick($2) VERSION $s.version 
+  }
+  if (%debug == on) {
+    if ($window(@debug) == $null) { window -ne @debug }
+    echo -t @debug $1-
+  }
+}
+
+
+alias dbnick {
+  return $right($gettok($1,1,$asc(!)),-1)
+}
+;;connection stuff
+on *:connect:{
+  hadd -mu300 just connected 1
+  .ignore -tw *!*@*
+  .debug -i dbgz dbgz
+  mhashread $network
+  mhashread global.op
+  if ($hget($network,identify) != $null) && (.proxy !isin $server) && (tcon !isin $me) { raw -q $hget($network,identify) }
+  if ($hget($network,oper) != $null) && (.proxy !isin $server) && (tcon !isin $me) { raw -q oper $hget($network,oper) }
+  if ($hget($network,modesonconnet) != $null) && (.proxy !isin $server) && (tcon !isin $me) { raw -q mode $me $hget($network,modesonconnet) }
+  ;if ($hget($network,autojoin) != $null) && (.proxy !isin $server) && (tcon !isin $me) { .timer 1 5 join -n $hget($network,autojoin) }
+}
+alias unban-all {
+  var %a = $line(@serverop,0)
+  var %b = $calc(%a - 250)
+  while (%a >= %b) {
+    tokenize 32 $line(@serverop,%a)
+    ;echo -s $line(@serverop,%a)
+    if (added g-line isin $line(@serverop,%a)) { gline $8 }
+    dec %a
+  }
+}
+;;protection stuff
+;anti query flood is 3 queries sent to you in 60 seconds
+;it won't open windows if it exceeds that
+;;anti spam stuff, won't open windows if a user PMs you a URL as the opening line
+on ^1:open:?:*:{
+  if ($main(antispamqueries) == on) {
+    if (*tp://* iswm $strip($1-)) || (*www.*.* iswm $strip($1-)) { i.echo -sa 14,1[2anti-spam/blocked window14]3 $nick 14(2 $+ $address($nick,10) $+ 14) 0msg14: $1- | haltdef }
+  }
+  if ($main(antifloodqueries) == on) {
+    if ($hget($network,afq) >= 3) {
+      i.echo -s 14,1[2anti-queryflood/blocked window14]3 $nick 14(2 $+ $address($nick,10) $+ 14) 0msg14: $1- 
+      hadd -mu21600 $network iffyusers $address($nick,5) $hget($network,floodedme)
+      hadd -m iffyuser $address($nick,4) $nick
+      haltdef
+    }
+    if ($hget($network,afq) != $null) { hinc $network afq 1 }
+    if ($hget($network,afq) == $null) { hadd -mu60 $network afq 1 }
+  }
+}
+alias kb {
+  var %a = 1 | var %b = $gettok($2-,0,32)
+  while (%a <= %b) {
+    if ($address($gettok($2-,%a,32),4) != $null) && ($gettok($2-,%a,32) ison $1) { var %dobannies = $address($gettok($2-,%a,32),2) %dobannies | var %dokickies = $gettok($2-,%a,32) %dokickies }
+    inc %a
+  }
+  if (%dobannies != $null) { 
+    .timer 1 0 domodes $1 +b %dobannies | var %c = 1 | var %d = $gettok(%dokickies,0,32)
+    while (%c <= %d) { var %dkn = kick $1 $gettok(%dokickies,%c,32)  $+ $lf $+ %dkn $+ $lf | inc %c }
+    if (%dkn != $null) { .timer -m 1 300 %dkn }
+  }
+}
+alias newchancfg {
+  if ($1 != $null) && ($network != $null) { 
+    i.echo $1 Generating config contents for $1 - it can be edited with /editcfg - /helpcfg chan to see what the options do and what values you can set.
+    writeini main.ini $network $+ . $+ $1 ignore off
+    writeini main.ini $network $+ . $+ $1 logurls off
+    writeini main.ini $network $+ . $+ $1 op.usage chanserv
+    writeini main.ini $network $+ . $+ $1 op.keepops off
+    writeini main.ini $network $+ . $+ $1 op.automodes off
+    writeini main.ini $network $+ . $+ $1 op.noflood off
+    writeini main.ini $network $+ . $+ $1 op.norepeat off
+    writeini main.ini $network $+ . $+ $1 op.blacklistedstrings *irc.gnaa*
+    writeini main.ini $network $+ . $+ $1 op.blacklistedstringslight *irc.gnaa*
+    writeini main.ini $network $+ . $+ $1 op.antibotflood off
+    i.echo $1 Finished generating config contents for $1 - it can be edited with /editcfg - All options off by default
+  }
+}
+alias ignorechan {
+  if ($1 == $null) && ($me ison $active) {
+    var %tmp = $readini(main.ini,$network $+ . $+ $active,ignore)
+    if (%tmp == $null) || (%tmp == off) { var %ignoring = nothing }
+    if (%tmp != $null) { var %ignoring = %tmp }
+    i.echo -a Ignoring: %ignoring on $active
+    mhashread $network $+ . $+ $active
+    halt
+  }
+  if ($me ison $1) || ($me ison $active) {
+    if ($me !ison $1) && ($me ison $active) { writeini main.ini $network $+ . $+ $active ignore $1- }
+    if ($me ison $1) { writeini main.ini $network $+ . $+ $1 ignore $2- }
+    if ($me !ison $1) && ($me !ison $active) { i.echo -a Ignoring: %ignoring on $active }
+    ;hadd -mu1 doecho hash 1 
+    ;mhashread $network $+ . $+ $chan
+  }
+}
+
+
+;;; other script stuff.
+
+
+
+;;real whois. does a  <whois nick nick> to get their idle times/real server
+;;bet you didn't know that, eh?
+
+alias whois { raw -q whois $1 $1 | halt }
+alias c.rejoinchans {
+  var %a = 1
+  var %b = $chan(0)
+  while (%a <= %b) {
+    if ($me !ison $chan(%a)) { var %c = $chan(%a) %c }
+    inc %a
+  }
+  if ($left(%c,1) == $chr(44)) { var %c = $right(%c,-1) }
+  if (%c != $null) { raw -q join $replace(%c,$chr(32),$chr(44)) }
+}
+
+;;updates ial for when you join a channel with a random delay so you don't flood out
+on *:join:#:{
+  if ($nick != $me) { hadd -mu180 recj. $+ $chan $nick 1 }
+  if ($nick == $me) {
+    hadd -mu30 justjoined $chan 1
+    if ($hget(chanfix,$chan) != $null) { window -h $chan }
+    .timer $+ $network $+ . $+ $chan 1 1 mhashread $network $+ . $+ $chan
+    inc.timer l.who $chan
+  }
+}
+
+on *:notice:*:#:{
+  var %a = $strip($lower($1-))
+  tokenize 32 %a
+  ;;norepeat protection
+  if ($hget(just,connected) != $null) { halt }
+  if ($network isin $ial($nick)) || ($nick isop $chan) || ($nick isvo $chan) { halt }
+  if ($hget($network $+ . $+ $chan,op.norepeat) != off) {
+    if ($hget(norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2),$md5($1-3)) != $null) {
+      hinc -mu10 norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2) $md5($1-3) 1
+    }
+    if ($hget(norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2),$md5($1-3)) == $null) {
+      hadd -mu30 norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2) $md5($1-3) 1
+      ;echo -a added: norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2) $md5($1-3) 1
+    }
+    if ($hget(norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2),$md5($1-3)) == 5) {
+      hadd -mu30 offenderlist $network $+ . $+ $chan $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      i.echo $chan Channel offenders(repeating): offenderlist $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      ;if (o isin $usermode) && ($gttok($hget(offenderlist,$network $+ . $+ $chan,0,32) >= 2) { operwall :Channel $chan offenders(repeating): $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2)) }
+      if ($me isop $chan) { hadd -mu900 imop $network $+ . $+ $chan 1 }
+      .timer 1 $r(3,7) prt.opme $chan
+    }
+  }
+  ;;noflood
+  if ($hget($network $+ . $+ $chan,op.noflood) != off) {
+    if ($hget(nofld. $+ $network $+ . $+ $chan,$address($nick,2)) != $null) { hinc nofld. $+ $network $+ . $+ $chan $address($nick,2)) 1 }
+    if ($hget(nofld. $+ $network $+ . $+ $chan,$address($nick,2)) == $null) { hadd -mu10 nofld. $+ $network $+ . $+ $chan $address($nick,2)) 1 }
+    if ($hget(nofld. $+ $network $+ . $+ $chan,$address($nick,2)) == 7) { 
+      hadd -mu30 offenderlist $network $+ . $+ $chan $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      i.echo $chan Channel offenders(flooding 7 lines in 10 seconds): $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      ;if (o isin $usermode) && ($gttok($hget(offenderlist,$network $+ . $+ $chan,0,32) >= 2) { operwall :Channel offenders(flooding 7 lines/10secs): $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2)) }
+      if ($me isop $chan) { hadd -mu900 imop $network $+ . $+ $chan 1 }
+      .timer 1 $r(3,7) prt.opme $chan
+    }
+  }
+}
+alias hl.echo {
+  if ($window(@hilite) == $null) { window -enk0 @hilite }
+  if ($1 != $null) { window -g2 @hilite | echo -t @hilite $1- }
+}
+on *:text:*:#:{
+  var %a = $strip($lower($1-))
+  tokenize 32 %a
+  var %h = 1
+  var %h2 = $gettok($main(hilite.names),0,32)
+  if ($1 ison $chan) && ($2 ison $chan) && ($3 ison $chan) && ($4 ison $chan) && ($5 ison $chan) && ($6 ison $chan) && ($7 ison $chan) {
+    if (o isin $usermode) && ($hget(recj. $+ $chan,$nick) != $null) {
+      gline $nick 1h :mass highlighting in $chan
+    }
+  }
+  while (%h <= %h2) {
+    if ($gettok($main(hilite.names),%h,32) isin $1-) {
+      if ($away == $true) { hinc -m last.hilite total }
+      if ($away == $false) && ($hget(last.hilite,total) != $null) { hdel last.hilite total }
+      hadd -m last.hilite chan $chan
+      hadd -m last.hilite nick $nick
+      hadd -m last.hmsg $chan $1-
+      do.titlebar
+      hadd -m last.hilite $chan $nick
+      if ($hget(nohlspam,$chan) == $null) {
+        echo -ts 14<6 $+ $chan $+ 4: $+ $nick $+ 14>00 $1-
+        if ($active != Status Window) && ($active != $chan) { echo -ta 14<6 $+ $chan $+ 4: $+ $nick $+ 14>00 $1- }
+        hadd -mu1 nohlspam $chan 1
+      }
+      if ($main(hilite.references) == on) {
+        hl.echo 14<6 $+ $chan $+ 4: $+ $nick $+ 14>00 $1-
+        hl.echo 8Showing previous lines before hilite for reference
+        var %l = $line($chan,0)
+        var %gl = $calc(%l - $main(references.lines.before))
+        while (%gl <= %l) && ($hget(ihl,$chan) == $null) {
+          hl.echo $line($chan,%gl)
+          inc %gl
+        }
+        hadd -mu3 ihl $chan 1
+      }
+    }
+    inc %h
+  }
+  if ($hget(just,connected) != $null) { halt }
+  ;;norepeat protection
+  if ($network $+ /staff/ isin $ial($nick)) || ($nick isop $chan) || ($nick isvo $chan) { halt }
+  if ($hget($network $+ . $+ $chan,op.norepeat) != off) && ($hget($network $+ . $+ $chan,op.norepeat) != $null) {
+    if ($hget(norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2),$md5($1-3)) != $null) {
+      hinc -mu10 norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2) $md5($1-3) 1
+    }
+    if ($hget(norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2),$md5($1-3)) == $null) {
+      hadd -mu30 norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2) $md5($1-3) 1
+      ;echo -a added: norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2) $md5($1-3) 1
+    }
+    if ($hget(norpt $+ . $+ $network $+ . $+ $chan $+ . $+ $address($nick,2),$md5($1-3)) == 5) {
+      hadd -mu30 offenderlist $network $+ . $+ $chan $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      i.echo $chan Channel offenders(repeating): offenderlist $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      ;if (o isin $usermode) && ($gttok($hget(offenderlist,$network $+ . $+ $chan,0,32) >= 2) { operwall :Channel $chan offenders(repeating): $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2)) }
+      if ($me isop $chan) { hadd -mu900 imop $network $+ . $+ $chan 1 }
+      .timer 1 $r(3,7) prt.opme $chan
+    }
+  }
+  ;;noflood
+  if ($hget($network $+ . $+ $chan,op.noflood) != off) && ($hget($network $+ . $+ $chan,op.noflood) != $null) {
+    if ($hget(nofld. $+ $network $+ . $+ $chan,$address($nick,2)) != $null) { hinc nofld. $+ $network $+ . $+ $chan $address($nick,2)) 1 }
+    if ($hget(nofld. $+ $network $+ . $+ $chan,$address($nick,2)) == $null) { hadd -mu10 nofld. $+ $network $+ . $+ $chan $address($nick,2)) 1 }
+    if ($hget(nofld. $+ $network $+ . $+ $chan,$address($nick,2)) == 7) { 
+      hadd -mu30 offenderlist $network $+ . $+ $chan $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      i.echo $chan Channel offenders(flooding 7 lines in 10 seconds): $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2))
+      ;if (o isin $usermode) && ($gttok($hget(offenderlist,$network $+ . $+ $chan,0,32) >= 2) { operwall :Channel offenders(flooding 7 lines/10secs): $nick $address($nick,2) $remove($hget(offenderlist,$network $+ . $+ $chan),$address($nick,2)) }
+      if ($me isop $chan) { hadd -mu900 imop $network $+ . $+ $chan 1 }
+      .timer 1 $r(3,7) prt.opme $chan
+    }
+  }
+}
+on *:deop:#:{
+  if ($opnick == $me) && ($hget(imop,$network $+ . $+ $chan) != $null) { hdel imop $network $+ . $+ $chan | halt }
+}
+alias prt.opme {
+  if ($hget(noflprt. $+ $network,$1) != $null) { halt }
+  hadd -mu5 noflprt. $+ $network $1 1
+  if ($2 == unpunish) { hadd -mu10 prtunpunish. $+ $network $1 $3- }
+  if ($me isop $1) { op.checkstuff $1 | halt }
+  if ($hget(op.noflood,$network $+ . $+ $1) != off) || ($hget(op.norepeat,$network $+ . $+ $1) != off) && ($me !isop $1) {
+    if ($hget($network $+ . $+ $1,op.usage) == chanserv) { cs op $1 $me | halt }
+    if ($hget($network $+ . $+ $1,op.usage) == oper) { os mode $1 +o $me }
+  }
+}
+alias prt.deopme {
+  if ($hget($network $+ . $+ $1,op.keepops) != off) { i.echo $1 Not deoping self because op.keepops setting is on for $chan | halt }
+  if ($hget(imop,$network $+ . $+ $1) != $null) { i.echo $1 Not deoping self. | halt }
+  if ($me isop $1) {
+    if ($2 == mode) { mode $1 -o $me | halt }
+    if ($hget($network $+ . $+ $1,op.usage) == chanserv) && ($2 != mode) { .timerdeop. $+ $network $+ . $+ $1 1 $r(1,5) cs deop $1 $me | halt }
+    if ($hget($network $+ . $+ $1,op.usage) == oper) && ($2 != $me) { .timerdeop. $+ $network $+ . $+ $1 1 $r(1,5) os mode $1 -o $me }
+  }
+}
+
+alias op.checkstuff {
+  if ($hget(offenderlist,$network $+ . $+ $1) != $null) {
+    .timer 1 300 prt.opme $1 unpunish $hget(offenderlist,$network $+ . $+ $1)
+    ;.timer 1 0 hadd -mu302 removequiets $network $+ . $+ $1 $hget(offenderlist,$network $+ . $+ $1)
+    .timer 1 0 domodes $1 +b $hget(offenderlist,$network $+ . $+ $1)
+    .timer 1 0 hdel offenderlist $network $+ . $+ $1
+    if ($hget(imop,$network $+ . $+ $chan) == $null) { .timer 1 0 prt.deopme $1 | .timer 1 8 prt.deopme $1 mode }
+  }
+  if ($hget(prtunpunish. $+ $network,$1) != $null) { 
+    if ($hget(had2op,$network $+ . $+ $1) != $null) { echo -t $chan Deoping as $me was not opped before protection system | .timer 1 6 prt.deopme $1 | .timer 1 7 prt.deopme $1 mode | hdel had2op $network $+ . $+ $chan }
+    .timer 1 3 prt.deopme $1
+    .timer 1 0 domodes $1 -b $hget(prtunpunish. $+ $network,$1)
+  }
+}
+on *:op:#:{
+  if ($opnick == $me) && ($hget(nofl.op. $+ $network,$chan) == $null) {
+    hadd -mu10 nfl.op. $+ $network $chan 1
+    op.checkstuff $chan
+    hadd -mu10 had2op $network $+ . $+ $chan 1
+  }
+}
+on *:deop:#:{
+  if ($opnick == $me) && ($hget($network $+ . $+ $chan,op.keepops) != off) && ($nick != chanserv) && ($hget(nofl.deop. $+ $network,$chan) == $null) {
+    hadd -mu10 nfl.deop. $+ $network $chan 1
+    prt.opme $chan
+  }
+}
+alias domodes {
+  while ($3) {
+    if ($gettok($3-,1- $+ $modespl $+ ,32) != $null) { mode $1 $left($2,1) $+ $str($right($2,1),$modespl) $gettok($3-,1- $+ $modespl $+ ,32) }
+    tokenize 32 $1-2 $gettok($3-, $+ $calc($modespl + 1) $+ -,32)
+  }
+}
+alias dosamodes {
+  while ($3) {
+    if ($gettok($3-,1- $+ $modespl $+ ,32) != $null) { samode $1 $left($2,1) $+ $str($right($2,1),$modespl) $gettok($3-,1- $+ $modespl $+ ,32) }
+    tokenize 32 $1-2 $gettok($3-, $+ $calc($modespl + 1) $+ -,32)
+  }
+}
+;;mIRC gets its IAL list from /whoing a channel, I do this and ignore what the server sends me so mIRC
+;;still builds that list but doesn't flood the client offline by sending too many commands at once
+;examples:
+;;2 * 4 = 8
+;;3 * 4 = 12 
+;;4 * 4 = 16
+;;4 * 5 = 20
+
+alias ial.who {
+  if ($me ison $1) { hadd -mu600 ialwho $1 1 | who $1 }
+}
+alias inc.timer {
+  if ($hget(tinc. $+ $1,$network) != $null) { hinc -mu10 tinc. $+ $1 $network 1 }
+  if ($hget(tinc. $+ $1,$network) == $null) { hadd -mu10 tinc. $+ $1 $network 1 }
+  if ($hget(tinc. $+ $1,$network) == 1) { .timer 1 0 $1- }
+  if ($hget(tinc. $+ $1,$network) > 1) { .timer 1 $calc($hget(tinc. $+ $1,$network) * 1.5) $1- }
+}
+alias g.clonelist {
+  var %a = 1
+  var %b = $nick($1,0)
+  while (%a <= %b) {
+    if ($ial($address($nick($1,%a),2),0) > 1) && (services !isin address($nick($1,%a),2)) { var %c = 00 $+ $nick($1,%a) $+ 12(06 $+ $address($nick($1,%a),2) $+ 12) %c }
+    inc %a
+  }
+  if (%c != $null) { i.echo -t $1 Clones: %c }
+}
+;; for atheme services, ns listchans $me will show what chans we have access to
+;;this will save it to memory, so it can act accordingly in situations
+;; in irssi theme mod/script, it'll ignore it when getting that list
+alias ns.lchans {
+  hadd -mu30 lca.nickserv $network 1
+  ns listchans $me
+}
+alias re {
+  var %nick = $hget(last.hilite,$active)
+  if ($me ison $active) { var %chan = $active }
+  if ($me ison $1) && ($1 != $active) { var %chan = $1 }
+  var %hmsg = $hget(last.hmsg,%chan)
+  if ($me ison %chan) {
+    if ($hget(last.hilite,%chan) != $null) {
+      var %pfx = $left($nick(%chan,%nick).pnick,1)
+      if (%pfx isin $prefix) { var %msg = 12 $+ %pfx $+  $+ %nick $+ : $1- }
+      if (%pfx !isin $prefix) { var %msg = %nick $+ : $1- }
+      if ($1 != $null) { msg %chan %msg }
+    }
+  }
+  if ($1 == $null) { echo -ta $+(14<11,%chan,14/4,%nick,14>0) %hmsg }
+}
+alias rel {
+  var %chan = $hget(last.hilite,chan)
+  var %hmsg = $hget(last.hmsg,%chan)
+  var %nick = $hget(last.hilite,nick)
+  var %pfx = $left($nick(%chan,%nick).pnick,1)
+  if (%pfx isin $prefix) { var %msg = 12 $+ %pfx $+  $+ %nick $+ : $1- }
+  if (%pfx !isin $prefix) { var %msg = %nick $+ : $1- }
+  if ($1 != $null) { msg %chan %msg | echo -ta 10æ 14( $+ 11/rel14:4 $+ %chan $+ 14) %msg }
+  if ($1 == $null) { echo -ta $+(14<11,%chan,14/4,%nick,14>0) %hmsg }
+}
+alias do.titlebar {
+  if ($hget(last.hilite,total) != $null) {
+    if ($away == $true) { var %lht = (total: $hget(last.hilite,total) $+ ) (Marked Away) }
+  }
+  titlebar $date(ddd mmm dd) $chr(124) last-highlited: $hget(last.hilite,chan) $hget(last.hilite,nick) %lht $chr(124)
+}

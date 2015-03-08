@@ -1,0 +1,466 @@
+;; charybdis & atheme oper script - rdv
+
+
+alias mgflags {
+  var %a = 1
+  var %b = $gettok($snicks,0,44)
+  var %c = $replace($snicks,$chr(44),$chr(32))
+  while (%a <= %b) {
+    msg groupserv flags !snoonet-staff $gettok(%c,%a,32) +mcsif
+    inc %a
+  }
+}
+alias jp {
+  var %chan = $1
+  alias jp.temp { $replace($2-,\.,$chr(124)) }
+  echo -ta Joining $1 ..
+  echo -ta Executing client command(s): $replace($2-,\.,$chr(124))
+  echo -ta Parting $1 [done]
+  join $1
+  jp.temp
+  part $1
+}
+raw 322:*:{
+  ;+ntTCFfjJd
+  var %noctcp = C
+  var %notice = T
+  var %nicks = F
+  var %flood = f
+  var %join = j
+  var %kick = J
+  var %delay = d
+  var %modes = x
+  var %m2 = 3:1
+  ;if (r isincs $4) { .timer 1 $r(1,600) cs flags $2 }
+  ;if (f !isincs $4) { var %modes = %modes $+ f | var %m2 = %m2 *8:5 }
+  ;if (j !isincs $4) { var %modes = %modes $+ j | var %m2 = %m2 5:5 }
+  ;if (J !isincs $4) { var %modes = %modes $+ J | var %m2 = %m2 2 }
+  if (p isincs $4) || (s isincs $4) || (i isincs $4) { var %no = $2 }
+  ;if (8 $+ $chr(58) isin $5-9) { var %modes = %modes $+ f | var %m2 = %m2 30:10 }
+  ;samode $2 +x 7:3
+  ;if (%no != $null) { echo -s %no }
+  ;if (%no == $null) { cs set chanstats $2 on }
+}
+raw 304:*:{
+  haltdef
+  var %a = $1-
+  tokenize 32 $gettok(%a,2-,32)
+  if ($2 == start) {
+    hadd -mu10 check current $3
+    ; if ($window(@check. $+ $3) == $null) { window -e @check. $+ $3 }
+    clear @check. $+ $3
+    echo -at 14[Check14]11:0 Checking users and data on $3 13...
+    echo -at 14[8START14]
+  }
+  var %win = @check. $+ $hget(check,current)
+  ;echo -ti %win $1-
+  if ($2 == match) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ MATCH $+ 14]11:00 $4- 
+  }
+  if ($2 == snomasks) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ snomasks $+ 14]11:00 $3- 
+  }
+  if ($2 == uid) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ uid $+ 14]11:00 $3- 
+  }
+  if ($2 == opertype) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ oper $+ 14]11:00 $3- 
+  }
+  if ($2 == commandperms) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ cmd-perms $+ 14]11:00 $3- 
+  }
+  if ($2 == modeperms) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ mode-perms $+ 14]11:00 $3- 
+  }
+  if ($2 == permissions) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ perms $+ 14]11:00 $3- 
+  }
+  if ($2 == clientaddr) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ ip:port $+ 14]11:00 $3- 
+  }
+  if ($2 == serveraddr) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ connected-to $+ 14]11:00 $3- 
+  }
+  if ($2 == connectclass) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ class $+ 14]11:00 $3- 
+  }
+  if ($2 == onchans) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ chans $+ 14]11:00 $3- 
+  }
+  if ($2 == meta:cloaked_host) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ ip-cloak $+ 14]11:00 $3- 
+  }
+  if ($2 == meta:geoip_cc) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ geo-ip $+ 14]11:00 $3- 
+  }
+  if ($2 == meta:cap_multi-prefix) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ cap $+ 14]11:00 $3- 
+  }
+  if ($2 == meta:accountname) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ NickServ id $+ 14]11:00 $3- 
+  }
+  if ($2 == meta:cap_userhost-in-names) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ cap-host $+ 14]11:00 $3- 
+  }
+  if ($2 == meta:swhois) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ whois-tag $+ 14]11:00 $3- 
+  }
+  if ($2 == lastmsg) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ last-spoke $+ 14]11:00 Last spoke @ @ $date($left($right($6,-1),-1),dddd mmm dd yyyy 14[00h:nntt14])
+  }
+  if ($2 == signon) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ signon $+ 14]11:00 Signed on @ $date($left($right($6,-1),-1),dddd mmm dd yyyy 14[00h:nntt14])
+  }
+  if ($2 == server) {
+    echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ server $+ 14]11:00 $3- 
+  }
+  if ($2 == timestamp) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ created $+ 14]11:00 $date($left($right($6,-1),-1),dddd mmm dd yyyy 14[00h:nntt14])  }
+  if ($2 == metadata) {  }
+  if ($2 == modelist) {
+    if ($left($3,2) == +e) {
+      echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ modewalkers $+ 14]11:00 $4- 
+      hadd -mu10 exem $hget(check,current) $4- $hget(exem,$hget(check,current))
+
+    } 
+    if ($left($3,2) == +I) {
+      echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ invite list $+ 14]11:00 $4- 
+      hadd -mu10 invite $hget(check,current) $4- $hget(invite,$hget(check,current))
+
+
+    } 
+  }
+  if ($2 == END) {
+    if ($hget(sops,$hget(check,current)) != $null) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ super-ops $+ 14]11:00 $hget(sops,$hget(check,current)) }
+    if ($hget(ops,$hget(check,current)) != $null) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ ops $+ 14]11:00 $hget(ops,$hget(check,current)) }
+    if ($hget(hops,$hget(check,current)) != $null) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ half-ops $+ 14]11:00 $hget(sops,$hget(check,current)) }
+    if ($hget(vo,$hget(check,current)) != $null) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ voices $+ 14]11:00 $hget(vo,$hget(check,current)) }
+    if ($hget(reg,$hget(check,current)) != $null) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ users $+ 14]11:00 $hget(reg,$hget(check,current)) }
+    hdel -w check *
+    echo -at 14[8END14]
+
+  }
+  if ($2 == member) {
+    if ($chr(43) !isin $4) && ($chr(37) !isin $4) && ($chr(33) !isin $4) && (@ !isin $4) {
+      ;echo -t  YES MEMBER! $4
+      hadd -mu10 reg $hget(check,current) $remove($4,@,!,+,$chr(37)) $hget(reg,$hget(check,current))
+    }
+    if (@ isin $4) { hadd -mu10 ops $hget(check,current) $remove($4,@,!,+,$chr(37)) $hget(ops,$hget(check,current))  }
+    if (! isin $4) { hadd -mu10 sops $hget(check,current) $remove($4,@,!,+,$chr(37)) $hget(sops,$hget(check,current))  }
+    if ($chr(37) isin $4) { hadd -mu10 hops $hget(check,current) $remove($4,@,!,+,$chr(37)) $hget(hops,$hget(check,current))  }
+    if ($chr(43) isin $4) { hadd -mu10 vo $hget(check,current) $remove($4,@,!,+,$chr(37)) $hget(vo,$hget(check,current))  }
+  }
+  if ($2 == membercount) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ users $+ 14]11:00 $strip($3-) users  }
+  if ($2 == modes) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ modes $+ 14]11:00 $strip($3-)  }
+  if ($2 == topic) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ topic $+ 14]11:00 $strip($3-)  }
+  if ($2 == topic_setby) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ topic $+ 14]11:00 Set by $strip($3-)  }
+  if ($2 == topic_setat) { echo -ati $+ $calc($len($strip($timestamp) + 8))  14[13 $+ topic $+ 14]11:00 Set @ $date($left($right($6,-1),-1),dddd mmm dd yyyy 14[00h:nntt14])  }
+  haltdef
+  halt
+}
+on *:usermode:{
+  if (o isin $1-) || (a isin $1-) {
+    .timerservop. $+ $network 1 2 servop
+    i.echo -s You are now an IRC Operator. Useful commands:
+    i.echo -s /pakill *@host1 nick *@ip etc - or /pakill nick1 nick2 nick3 nick4 nick5 etc
+    i.echo -s /mkill *@host1 nick *@ip etc - or /pakill nick1 nick2 nick3 nick4 nick5 etc
+    i.echo -s /who !#chan - show operators, voices, etc of a channel
+    i.echo -s /closechan !#chan or #chan - deops everyone, clears chanserv's user flags, sets mode +ms - Used for temporarily handling disputes before a channel is /cs closed
+    i.echo -s /listial *!test@host.*.com - searches for people in the internal address list. Easy for finding users trying to hide.
+    i.echo -s /deservop - No longer show network notices (connects/quits/floods,etc)
+    i.echo -s /servop (automatically done when opered) - show connects/quits/floods in @serverop and @connections
+  }
+}
+alias do.mkill {
+  if ($1 == ops) {
+    var %a = 1
+    var %b = $nick($2,0)
+    while (%a <= %b) {
+      if ($nick($2,%a) isop $2) { kill $nick($2,%a) $3- }
+      inc %a
+    }
+  }
+  if ($1 == voice) {
+    var %a = 1
+    var %b = $nick($2,0)
+    while (%a <= %b) {
+      if ($nick($2,%a) isvo $2) { kill $nick($2,%a) $3- }
+      inc %a
+    }
+  }
+  if ($1 == regular) {
+    var %a = 1
+    var %b = $nick($2,0)
+    while (%a <= %b) {
+      if ($nick($2,%a) !isop $2) && ($nick($2,%a) !isvo $2) { kill $nick($2,%a) $3- }
+      inc %a
+    }
+  }
+}
+
+alias mkill2 {
+  var %a = 1
+  var %b = $ial($1,0)
+  while (%a <= %b) {
+    kill $ial($1,%a).nick $2-
+    inc %a
+  }
+}
+
+alias quickdo {
+  var %a = $replace($1-,$+($chr(32),&,$chr(32)),$lf)
+  raw -q mode $me +p | raw -q %a
+}
+alias l.who { raw -q who $1 | hadd -mu120 lwho $1 1 | hadd -mu120 ialwho $1 1 }
+alias lwho { raw -q who $1 | hadd -mu120 lwho $1 1 | hadd -mu120 ialwho $1 1 }
+alias mu.mode {
+  hadd -mu20 mass who $2-
+  who $1
+}
+raw 352:*: {
+  ;if ($chr(42) isin $7) || (snoonet/ isin $4) && ($me ison $2) { hadd -mu10 ircops $2 $6 $hget(ircops,$2) }
+  if ($hget(mass,who) != $null) {
+    echo -s samode $3 $hget(mass,who)
+  }
+  if ($hget(lwho,$2) != $null) {
+    if (@ isin $7) { hadd -mu10 lwho. $+ $2 op $6 $gettok($hget(lwho. $+ $2,op),1-45,32) }
+    if (+ isin $7) { hadd -mu10 lwho. $+ $2 voice $6 $gettok($hget(lwho. $+ $2,voice),1-45,32) }
+    if ($chr(42) isin $7) { hadd -mu10 lwho. $+ $2 ircop $6 $gettok($hget(lwho. $+ $2,ircop),1-45,32) }
+    if ($chr(37) isin $7) { hadd -mu10 lwho. $+ $2 hop $6 $gettok($hget(lwho. $+ $2,hop),1-45,32) }
+    if (G isin $7) { hadd -mu10 lwho. $+ $2 away $6 $gettok($hget(lwho. $+ $2,away),1-45,32) }
+    halt
+  }
+}
+raw 315:*: {
+  ;if ($chr(42) isin $7) || (/staff/ isin $4) && ($me ison $2) { hadd -mu10 ircops $2 $6 $hget(ircops,$2) }
+  if ($hget(lwho,$2) != $null) {
+    if ($hget(lwho. $+ $2,op) != $null) { i.echo $2 3ops14[06 $+ $gettok($hget(lwho. $+ $2,op),0,32) $+ 14]3:00 $hget(lwho. $+ $2,op) }
+    if ($hget(lwho. $+ $2,voice) != $null) { i.echo $2 3voice14[06 $+ $gettok($hget(lwho. $+ $2,voice),0,32) $+ 14]3:00 $hget(lwho. $+ $2,voice) }
+    if ($hget(lwho. $+ $2,ircop) != $null) { i.echo $2 3ircop14[06 $+ $gettok($hget(lwho. $+ $2,ircop),0,32) $+ 14]3:00 $hget(lwho. $+ $2,ircop) }
+    if ($hget(lwho. $+ $2,away) != $null) { i.echo $2 3away14[06 $+ $gettok($hget(lwho. $+ $2,away),0,32) $+ 14]3:00 $hget(lwho. $+ $2,away) }
+    if ($hget(closechan,$2) != $null) {
+      cs fdrop $2
+      if ($hget(lwho. $+ $2,op) != $null) { os mode $2 - $+ $str(o,$gettok($hget(lwho. $+ $2,op),0,32)) $hget(lwho. $+ $2,ohp) }
+      if ($hget(lwho. $+ $2,hop) != $null) { os mode $2 - $+ $str(h,$gettok($hget(lwho. $+ $2,hop),0,32)) $hget(lwho. $+ $2,op) }      
+      if ($hget(lwho. $+ $2,voice) != $null) { os mode $2 - $+ $str(o,$gettok($hget(lwho. $+ $2,voice),0,32)) $hget(lwho. $+ $2,voice) }
+      topic $2 $hget(closechan. $+ $2,reason)
+      cban $2 0 : $+ $hget(closechan. $+ $2,reason)
+    }
+    g.clonelist $2
+    .timer 1 0 hdel lwho $2
+    .timer 1 0 hdel -w lwho. $+ $2 *
+    haltdef
+    halt
+  }
+}
+alias closechan {
+  if ($2 != $null) {
+    raw -q globops :Temporarily suspending channel: $1 Reason: $2- (opers: if this channel must be closed, please /cs close $1 ON $2- $+ )
+    hadd -mu10 closechan $1 1
+    hadd -mu10 closechan. $+ $1 reason $2-
+    ojoin $1
+    l.who $1
+  }
+}
+
+;/listial *!test@host.*.com
+;searches for people in the internal address list.
+;$listial(*!*@test.*whatever*.??.com,n) to get all matches in 1 line
+alias listial {
+  var %a = 1
+  var %b = $ial(*!*@*,0)
+  while (%a <= %b) {
+    if ($1 iswm $ial(*!*@*,%a)) {
+      if ($2 == $null) { echo -ta LIAL11:00 $ial(*!*@*,%a).nick 14(12 $+ $ial(*!*@*,%a) $+ 14) }
+      var %c = $ial(*!*@*,%a).nick %c
+    }
+    inc %a
+  }
+  if ($2 == n) { return %c }
+}
+;/opme <chan(optional)>
+;;ops yourself in that channel
+alias opme {
+  if ($1 == $null) && ($me ison $active) { mode $me +p | mode $active +o $me | mode $me -p }
+  if ($1 != $null) { mode $me +p | mode $active +o $me | mode $me -p }
+}
+
+;;/pakill or /mkill nick1 *@ip/host 1.2.3.4 nick2
+;/pakill kills permanently adds an akill on the nick/host/ip - it doesn't matter put it.
+;/mkill works in the same fashion, only kills the user and doesn't akill them.
+
+alias pakill {
+  var %a = 1
+  var %b = $gettok($1-,0,32)
+  var %c = $1-
+  raw -q globops :7d.akill( $+ $gettok($1-,0,32) targets): $1-
+  while (%a <= %b) {
+    if ($left($gettok(%c,%a,32),2) == $chr(42) $+ $chr(41)) { var %os.akilldo = $gettok(%c,%a,32) }
+    if ($left($gettok(%c,%a,32),2) != $chr(42) $+ $chr(41)) && ($chr(46) isin $gettok(%c,%a,32)) { var %os.akilldo = *@ $+ $gettok(%c,%a,32) }
+    if (. !isin $gettok(%c,%a,32)) { var %os.akilldo = $gettok(%c,%a,32) }
+    if (%os.akilldo != $null) { os AKILL ADD +7d $gettok(%c,%a,32) Violation of $network TOS }
+    inc %a
+  }
+}
+alias mkill {
+  var %a = 1
+  var %b = $gettok($1-,0,32)
+  var %c = $1-
+  while (%a <= %b) {
+    kill $gettok(%c,%a,32) Violation of www.snoonet.org TOS
+    inc %a
+  }
+}
+;;Server operator modes. See connections/other IRCd data.
+alias servop { mode $me +s +FCc }
+alias deservop { mode $me -s -FCc }
+
+on ^*:text:*:#services:{
+  if ($network == snoonet) {
+    if (Serv isin $nick)  || ($nick == Global) {
+      if ($window(@services) == $null) { window -ne @services | window -h #services }
+      echo -t @services 6< $+ $nick $+ >0 $replace($1-,used,10used15,to $+ $chr(32),10to00 $+ $chr(32),on $+ $chr(32),10on00 $+ $chr(32))
+      if ($nick == operserv) && (Clone isin $strip($1)) && ($strip($2) >= 3) {
+        hadd -mu900 anticlones ips *@ $+ $strip($5) $remove($hget(anticlones,ips),*@ $+ $strip($5))
+        if ($hget(anticlones,count) == $null) { hadd -mu600 anticlones count 1 }
+        if ($hget(anticlones,count) != $null) { hinc -mu600 anticlones count 1 }
+        if ($hget(anticlones,count) >= 8) {
+          .timer 1 1 hdel anticlones count
+          .timer 1 1 hdel anticlones ips
+          .timer 1 0 globops :Banning botnet IPs (3 days): $hget(anticlones,ips) (Notified them: If this is a mistake please contact server administration via EMAIL %supportemail for bans to be removed.)
+          2mckill $hget(anticlones,ips)
+        }
+      }
+      .timer 1 2 window -g2 @services
+      halt
+    }
+    halt
+  }
+}
+on ^*:snotice:*:{
+  if ($network == snoonet) {
+    if ($window(@connections) == $null) { window -nek0 @connections }
+    if ($window(@serverop) == $null) { window -nek0 @serverop }
+    var %a = $remove($1-,*** REMOTECONNECT:,*** REMOTEQUIT:,*** CONNECT:,on port,$chr(40) $+ class)
+    tokenize 32 %a
+    if (kill isin $1-) && (ghost isin $1-) { halt }
+    if ($1 == CLICONN) || ($1 == CLIEXIT) { halt }
+    if ($5 $6 $7 $8 == a /whois on you) {
+      if ($window(@whois) == $null) { window -ne @whois }
+      echo -t @whois $date(mmm/dd/yyyy) $2 $3 is doing a whois on you.
+      if ($hget(nofl,whois) == $null) {
+        var %a = 1
+        var %b = $chan(0)
+        while (%a <= %b) {
+          if ($1 ison $chan(%a)) { var %c = $chan(%a) %c }
+          inc %a
+        }
+        if (%c != $null) { echo -t @whois $date(mmm/dd/yyyy) $1 chans in common with you: | echo -t @whois $date(ddd/mmm/yyyy) $1 $+ : %c }
+        hadd -mu10 nofl whois 1
+      }
+    }
+    ;echo -s $1-
+    if (secs isin $gettok($uptime(server,2),1,32)) { halt }
+    if ($1 $2 == Client connecting) || ($left($1 %2,-1) == *** Connect) {
+      nspm $j.getnick($5)
+      copecho Connected: 11(0 $+ $j.getnick($5) $+ 11) 4IP6:00 *@ $+ $j.gethost($5)
+      ;copecho $1-
+      hadd -mu900 adv.recentcon $j.getnick($5) *@ $+ $j.gethost($5)
+      if ($hget(global.op,oper.findcon) != $null) {
+        var %a = 1
+        var %b = $gettok($hget(global.op,oper.findcon),0,32)
+        while (%a <= %b) {
+          var %c = $gettok($hget(global.op,oper.findcon),%a,32)
+          if (%c iswm $left($right($5,-1),-1)) { globops : $3 (known banned user connected) IP: *@ $+ $j.gethost($5) }
+          inc %a
+        }
+      }
+      halt
+    }
+    if ($1 $2 == Client exiting) { copecho Quit: 11(0 $+ $j.getnick($6) $+ 11) 4IP6:00 *@ $+ $j.gethost($6) | halt } 
+    sopecho $1-
+    .timer 1 1 window -g2 @connections
+  }
+  halt
+}
+alias nspm {
+  if ($left($strip($1),1) isalpha) && ($right($strip($1),2) isnum) && ($right($left($1,2),1) isnum) && (marlin isin $1) {
+    inc %nspm
+    msg #staff autobanned: $1 - Count: %nspm
+    pakill $1
+  }
+}
+alias j.gethost { return $gettok($1,2,$asc(@)) }
+alias j.getnick { return $gettok($1,1,$asc(!)) }
+;;LordUb3r[LordUb3r@static-50-53-21-213.bvtn.or.frontiernet.net] 
+alias sopecho {
+  if (client connecting isin $1 $2) || (GHOST command used by isin $1-) { halt }
+  if ($1 $2 == Possible Flooder) && ($left($7,1) == $chr(35)) && ($away != $null) && ($me !ison $7) {
+    echo -ta Flood Alert (admin notice): $1-
+    echo -t @serverop Flood Alert (admin notice): $1-
+    if ($hget(adv.recentcon,$left($gettok($strip($3),2,$asc(@)),-1)) != $null) && ($hget(global.op,oper.antibotcon) == on) {
+      globops :Flood Alert (admin notice/RECENT CONNECTION & TRIGGERING IRC FLOOD ALERT :Removing from network): $1-
+      2mckill *@ $+ $left($gettok($3,2,$asc(@)),-1)
+    }
+  }
+  if ($1 $2 $4 == Too many connections) && (@127.0.0.1 !isin $6) && (@76.73.96.42 !isin $6) {
+    hadd -mu900 2mc connectors *@ $+ $gettok($6,2,$asc(@)) $remove($hget(2mc,connectors),*@ $+ $gettok($6,2,$asc(@)))
+    if ($hget(2mc,count) == $null) { hadd -mu120 2mc count 1 }
+    if ($hget(2mc,count) != $null) { hinc -mu120 2mc count 1 }
+    ;if ($hget(2mc,count) >= 3) && ($hget(adv.recentcon,$gettok($gettok($6,2,$asc(!)),1,$asc(@))) != $null) {
+    ;  .timer 1 0 operwall :Banning botnet IPs (3 days): $hget(2mc,connectors) (Notified them: If this is a mistake please contact server admins to be removed.)
+    ;  if ($gettok($hget(2mc,connectors),0,32) >= 8) { 2mckill $hget(2mc,connectors) }
+    ;  hdel 2mc count
+    ;  hdel 2mc connectors
+    ;}
+  }
+  echo -t @serverop $1-
+}
+alias copecho {
+  echo -t @connections $1-
+  ;write $network $+ - $+ regusers.log $strip($1-)
+}
+
+alias 2mckill {
+  var %a = 1
+  var %b = $gettok($1-,0,32)
+  var %c = $1-
+  while (%a <= %b) {
+    if ($left($gettok(%c,%a,32),2) == $chr(42) $+ $chr(41)) { var %os.akilldo = $gettok(%c,%a,32) }
+    if ($left($gettok(%c,%a,32),2) != $chr(42) $+ $chr(41)) && ($chr(46) isin $gettok(%c,%a,32)) { var %os.akilldo = *@ $+ $gettok(%c,%a,32) }
+    if (. !isin $gettok(%c,%a,32)) { var %os.akilldo = $gettok(%c,%a,32) }
+    if (%os.akilldo != $null) && (%os.akilldo != *@*) && (127.0.0.1 !isin %os.akilldo) && (localhost !isin %os.akilldo) { os AKILL +7d ADD $gettok(%c,%a,32) Suspected malicious bot. If this is a mistake please e-mail %supportemail with your nick and a brief explanation to be removed. }
+    inc %a
+  }
+}
+
+on *:nick:{
+  if ($address($nick,2) != $null) { var %nhost = $gettok($address($nick,2),2,33) }
+  if ($address($newnick,2) != $null) { var %nhost = $gettok($address($nick,2),2,33) }
+  if ($hget(adv.recentcon,%nhost) != $null) {
+    if ($hget(nc. $+ %nhost,count) == $null) { hadd -mu30 nc. $+ %nhost count 1 }
+    if ($hget(nc. $+ %nhost,count) != $null) { hinc -mu30 nc. $+ %nhost count 1 }
+    if ($hget(nc. $+ %nhost,count) >= 6) && (o isin $usermode) && (@ isin $hget(adv.recentcon,%nhost)) {
+      2mckill $hget(adv.recentcon,%nhost)
+      operwall :3d akill (Recently connected, name change flood): $hget(adv.recentcon,%nhost)
+    }
+  }
+}
+alias warnchan {
+  if ($me !ison $1) { ojoin $1 }
+  if ($2 != $null) { var %2w = Infraction: $2- }
+  msg $1 4Channel Warning %2w
+  msg $1 Please view the rules at 12%ruleslink
+  msg $1 Channel operators are responsible for enforcing network rules and guidelines across their jurisdictions, failure to do so can mean channel forfeiture, or forcing the addition of new, active channel operators. If you would like channel assistance (anti spam, flood, channel protection) please ask in #help
+  msg $1 This serves as a written warning. All channel operators on the channel access list and currently holding operator status have been logged.
+  if ($me !ison $1) { part $1 }
+}
+alias warnuser {
+  if ($2 != $null) { var %2w = Infraction: $2- }
+  ctcp $1 VERSION
+  CTCP $1 FINGER
+  ctcp $1 TIME
+  notice $1 4Policy Warning %2w
+  notice $1 Please view the rules at 12%ruleslink
+  notice $1 Ignorance of the rules, policy, and guidelines will result in dismissal from the network. All network operators have been notified of this policy warning.
+  notice $1 This serves as a written warning. All users are expected to follow $network $+ 's small ruleset. We aren't asking much!
+}
