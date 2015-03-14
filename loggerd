@@ -19,11 +19,21 @@ on ^*:start: {
 alias initloggerd {
   ;window -dDe2k0 @Seen 
   var %inifile [ $network $+ .ini ]
+  var %htable [ $network $+ .log ]
   flushini %inifile
-  timer 0 120 /flushini %inifile
+  /* -Hash Table Overhaul; Initialization of hash tables-
+  hmake [ %htable $+ .act ] 10000
+  hmake [ %htable $+ .msg ] 10000
+  hmake [ %htable $+ .addr ] 10000
+  hload -i [ %htable $+ .act ] %inifile [ $network $+ .act ]
+  hload -i [ %htable $+ .msg ] %inifile [ $network $+ .msg ]
+  hload -i [ %htable $+ .addr ] %inifile [ $network $+ .addr ]
+  */
+  timer 0 300 /flushini %inifile 
   ;doubled flushtime to see if performance improves, 15 seconds seems to make the client derpy
   ;doubled again to see if it helps random lockups during type inpup.
   ;Doubled a third time to see if this improves logging any
+  ;jumped to 5 minute delay
 }
 
 on ^*:connect: { 
@@ -33,30 +43,29 @@ on ^*:connect: {
 
 on ^*:text:*:*: { 
   var %inifile [ $network $+ .ini ]
+  ;var %htable [ $network $+ .log ]
   writeini -n [ %inifile [ $+($network,.,act) ] $+(LASTACT,:,$nick) Messaged $target at $adate $asctime($ctime,hh:nn:ss) ]
+  ;hadd [ %htable $+ .act ] [ $+(LASTACT,:,$nick) Messaged $target at $adate $asctime($ctime,hh:nn:ss) ]
   writeini -n [ %inifile [ $+($network,.,msg) ] $+(MSG,_,$nick) $1- ]
+  ;hadd [ %htable $+ .msg ] [ $+(MSG,_,$nick) $1- ]
   writeini -n [ %inifile [ $+($network,.,msg) ] $+($target,_,datetime) $nick $adate $asctime($ctime,hh:nn:ss) ]
+  ;hadd [ %htable $+ .msg ] [ $+($target,_,datetime) $nick $adate $asctime($ctime,hh:nn:ss) ]
   writeini -n [ %inifile [ $+($network,.,msg) ] $+($target,_,raw) $nick $adate $asctime($ctime,hh:nn:ss) $target $1- ]
+  ;hadd [ %htable $+ .msg ] [ $+($target,_,raw) $nick $adate $asctime($ctime,hh:nn:ss) $target $1- ]
   writeini -n [ %inifile [ $+($network,.,addr) ] $nick $address($nick,0) $address($nick,2) $address($nick,5) *!*@* ]
-  ;;;hadd -m $network $+($target,.,$nick) $adate $asctime($ctime,hh:nn:ss) $target $1-
-  ;;;hadd -m $network $+(address,.,$nick) $address($nick,2)
+  ;hadd [ %htable $+ .addr ] [ $nick $address($nick,0) $address($nick,2) $address($nick,5) *!*@* ]
 }
 
-;WE STILL FLUSH THE INIS ON LESS COMMON EVENTS! This is to make sure that things stay up to date as we're seeing things happen
-;******************************************THE PREVIOUS COMMENT IS NO LONGER TRUE*******************************************************
-;YOU MUST NOT FLUSH THE INIS ON EVENTS! This is due to a performance bottleneck that arises during extremely adverse network conditions
-;Sitting in a number of large channels and being on the wrong side of a split can bring the client screeching to a halt, especially 
-;on older computers with less resources. 
-;TL;DR YOU MUST MUST MUST MUST RELY ON THE TIMERS COMPLETELY TO FLUSH YOUR INI UNLESS YOU'RE MAKING A REQUEST FROM LOGGERD!
+;Hash Table Power Overhaul in Progress...
 
 
 on ^*:join:#: {
   var %inifile [ $network $+ .ini ]
+  ;var %htable [ $network $+ .log ]
   writeini -n %inifile [ $+($network,.,addr) ] [ $nick $address($nick,0) $address($nick,2) $address($nick,5) ]
+  ;hadd [ %htable $+ .addr ] [ $nick $address($nick,0) $address($nick,2) $address($nick,5) ]
   writeini -n %inifile [ $+($network,.,act) ] [ $+(LASTACT,:,$nick) Joined $target at $adate $asctime($ctime,hh:nn:ss) ]
-  ;flushini %inifile
-  ;hadd -m $network $+($target,.,$nick) $adate $asctime($ctime,hh:nn:ss) $target Joined
-  ;hadd -m $network $+(address,.,$nick) $address($nick,2)
+  ;hadd [ %htable $+ .act ] [ $+(LASTACT,:,$nick) Joined $target at $adate $asctime($ctime,hh:nn:ss) ]
 }
 
 on ^*:part:#: {

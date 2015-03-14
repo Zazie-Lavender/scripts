@@ -1934,7 +1934,7 @@ ALIAS ip2c.ial.check {
 ; Extraction example is ex. ip68-100-148-4.dc.dc.cox.net extracts to 68.100.148.4
 ; As it can give wrong results, it has to be asked for manually
 
-#ip2c.host2ip on
+#ip2c.host2ip off
 
 ALIAS ip2c.host2ip { .disable #ip2c.host2ip | return $true }
 
@@ -2784,7 +2784,7 @@ raw 353:*:{
 ;### GROUP END #ip2c.IAL-update
 
 ;### GROUP START #ip2c.USERHOST
-#ip2c.USERHOST off
+#ip2c.USERHOST on
 
 raw 302:*: .disable #ip2c.USERHOST | haltdef
 
